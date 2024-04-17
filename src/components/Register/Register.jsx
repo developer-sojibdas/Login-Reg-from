@@ -28,7 +28,7 @@ const Register = () => {
       );
       return;
     } else if (!accepted) {
-      toast.warning("Please Accecpet our Terms & Condition");
+      toast.warning("Please Accecpet our Terms & Condition ");
       return;
     }
 
