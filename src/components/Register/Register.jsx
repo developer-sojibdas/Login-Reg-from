@@ -24,7 +24,7 @@ const Register = () => {
       return;
     } else if (!regExp.test(password)) {
       toast.error(
-        "Use one upper case and use one lower case and use one digit and special character Minimum eight in length"
+        "Use one upper case and use one lower case and use one digit and special character  eight in length"
       );
       return;
     } else if (!accepted) {
