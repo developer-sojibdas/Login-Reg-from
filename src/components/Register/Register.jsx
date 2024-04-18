@@ -1,4 +1,8 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  updateProfile,
+} from "firebase/auth";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import auth from "../../firebase/firebase.config";
@@ -12,6 +16,7 @@ const Register = () => {
     e.preventDefault();
     const name = e.target.name.value;
     const email = e.target.email.value;
+
     const password = e.target.password.value;
     const accepted = e.target.terms.checked;
 
@@ -32,13 +37,28 @@ const Register = () => {
       return;
     }
 
-    console.log(name, email, password, accepted);
     // creactUser with password
     createUserWithEmailAndPassword(auth, email, password, name)
       .then((result) => {
         const user = result.user;
+        // update profile Name
+        updateProfile(user, {
+          displayName: name,
+        })
+          .then(() => {
+            toast.success("Profile Updated");
+          })
+          .catch((error) => {
+            const errorMessage = error.message;
+            toast.error(errorMessage);
+          });
+
+        // set varificaton email
+        sendEmailVerification(user).then(() => {
+          toast.warn("Please check your email and verify your account ");
+          return;
+        });
         toast.success("user Create Succssully");
-        console.log("user creact", user);
       })
       .catch((error) => {
         const errorMessage = error.message;
@@ -70,6 +90,7 @@ const Register = () => {
                 placeholder="Email"
                 required
               />
+
               <div className="relative">
                 <input
                   className="p-2 rounded-xl border bg-white w-full"

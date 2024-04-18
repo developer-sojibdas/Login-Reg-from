@@ -4,6 +4,7 @@ import { FaRegEyeSlash } from "react-icons/fa6";
 import {
   GithubAuthProvider,
   GoogleAuthProvider,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
@@ -11,10 +12,12 @@ import {
 import auth from "../../firebase/firebase.config";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 const Login = () => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const [passwordShow, setPasswordShow] = useState(false);
+  const emailRef = useRef(null);
   const [user, setUser] = useState(null);
   const googleProvider = new GoogleAuthProvider();
   const gitHubProvider = new GithubAuthProvider();
@@ -68,7 +71,34 @@ const Login = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((result) => {
         const user = result.user;
-        toast.success("You are Logied In");
+
+        if (user.emailVerified) {
+          toast.success("You are Logied In");
+        } else {
+          alert("Please check yout email and verify you account");
+          return;
+        }
+        setUser(user);
+      })
+      .catch((error) => {
+        const errorMessage = error.message;
+        toast.error(errorMessage);
+      });
+  };
+
+  // forget Password
+  const forgetPassword = () => {
+    const email = emailRef.current.value;
+    if (!email) {
+      toast.error("Email Field Eamty");
+      return;
+    } else if (!emailRegex.test(email)) {
+      toast.error("Please Write a valid email");
+      return;
+    }
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        toast.warn("Password reset email sent!");
       })
       .catch((error) => {
         const errorMessage = error.message;
@@ -120,6 +150,7 @@ const Login = () => {
                 className="p-2 mt-8 rounded-xl border bg-white "
                 type="email"
                 name="email"
+                ref={emailRef}
                 placeholder="Email"
               />
               <div className="relative">
@@ -193,7 +224,10 @@ const Login = () => {
               </button>
             </div>
 
-            <div className="mt-5 text-xs border-b border-[#002D74] py-4 text-[#002D74]">
+            <div
+              onClick={forgetPassword}
+              className="mt-5 text-xs border-b border-[#002D74] py-4 text-[#002D74]"
+            >
               <a href="#">Forgot your password?</a>
             </div>
 
